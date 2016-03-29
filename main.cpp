@@ -7,14 +7,9 @@
 #include <string>
 #include "bitops.h"
 
-
 /* these are the constants needed */
 //const double invGain2 = 1/0.8281336921;  // cordic_02   + 0.25   -0.25
 const double invGain2 =1/ 1.656266;        // cordic_02   + 1      -1   ... = 0.6037 = 0.1001101..
-
-//const double invGain2 = 0.8297;
-
-
 
 
 
