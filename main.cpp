@@ -12,7 +12,6 @@
 const double invGain2 =1/ 1.656266;        // cordic_02   + 1      -1   ... = 0.6037 = 0.1001101..
 
 
-
 BITARRAY mult_0_6037(BITARRAY a)  // multiply BITARRAY with 0.6037 = 0.100110101..
 {
   BITARRAY result, temp;
@@ -185,7 +184,6 @@ void cordic_02(double* x0, double* y0, BITARRAY &bx0, BITARRAY &by0)  // accurat
 
 double sqrtCordic(double a)
 {
-    /* 0.03 < a < 2 */
     double x, y;
     BITARRAY bx, by, ba;
     BITARRAY one(pow(2, FPOINT)), one_inv;
@@ -212,8 +210,6 @@ int main(void)
 
     x = 2.;
     v = sqrtCordic(x);
-    //w = sqrt_cordic(x, 25);
-  //  printf("Cordic Double: sqrt(%f) =  %.18e\n", x, v);
     printf("Real:          sqrt(%f) =  %.18e\n", x, sqrt(x));
 /*
 
