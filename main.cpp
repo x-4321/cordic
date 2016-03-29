@@ -7,9 +7,13 @@
 #include <string>
 #include "bitops.h"
 
+// number of BITS can be specified in bitops.h
+
+
 /* these are the constants needed */
 //const double invGain2 = 1/0.8281336921;  // cordic_02   + 0.25   -0.25
 const double invGain2 =1/ 1.656266;        // cordic_02   + 1      -1   ... = 0.6037 = 0.1001101..
+#define MULT(_a, _b)    (_a)*(_b)
 
 
 BITARRAY mult_0_6037(BITARRAY a)  // multiply BITARRAY with 0.6037 = 0.100110101..
@@ -32,61 +36,51 @@ BITARRAY mult_0_6037(BITARRAY a)  // multiply BITARRAY with 0.6037 = 0.100110101
   return result;
 }
 
-void cordit2(double* x, double* y)
+
+/* This is the original algorithm. Below (cordic_bit), the same operations are performed, only with bitsets
+void cordit2(double* x0, double* y0, double* z0)
 {
-    /* here's the hyperbolic methods. its very similar to
-     * the circular methods, but with some small differences.
-     *
-     * the `x' iteration have the opposite sign.
-     * iterations 4, 7, .. 3k+1 are repeated.
-     * iteration 0 is not performed.
-     */
+    double t;
+    double x, y, z;
+    int i;
 
+    t = 0.5;
+    x = *x0; y = *y0; z = *z0;
 
-    double x_temp, y_temp;
-    int i, k = 4, iter_steps = 50;
+    int k = 3;
+    for (i = 0; i < MAXBITS; ++i) {
+        double x1;
+        int j;
 
-    for(i = 1; i < iter_steps; ++i)
-    {
-      x_temp = *x / pow(2., static_cast<double>(i));
-      y_temp = *x / pow(2., static_cast<double>(i));
+        for (j = 0; j < 2; ++j) {
+            if (y < 0 ) {
+                x1 = x + y*pow(2, -i);
+                y = y + x* pow(2, -i);
 
-      if (*y < 0.)
-      {
-          *x = *x + y_temp;
-          *y = *y + x_temp;
-      }
-      else
-      {
-        *x = *x - y_temp;
-        *y = *y - x_temp;
-      }
+            }
+            else {
+                x1 = x - y*pow(2, -i);
+                y = y - x* pow(2, -i);
 
-      if (i == k)
-      {
-        x_temp = *x / pow(2., static_cast<double>(i));
-        y_temp = *x / pow(2., static_cast<double>(i));
+            }
+            x = x1;
 
-        if (*y < 0.)
-        {
-          *x = *x + y_temp;
-          *y = *y + x_temp;
+            if (k) {
+                --k;
+                break;
+            }
+            else k = 3;
         }
-        else
-        {
-          *x = *x - y_temp;
-          *y = *y - x_temp;
-        }
-        k = 3 * k + 1;
-      }
     }
+
+    *x0 = x;
+    *y0 = y;
 }
 
+*/
 
-#define MULT(_a, _b)    (_a)*(_b)
-
-
-void cordic_02(double* x0, double* y0, BITARRAY &bx0, BITARRAY &by0)  // accurate only between 0 to 2
+// This is the same algorithm as above, but with bits instead of double
+void cordic_bit(BITARRAY &bx0, BITARRAY &by0)  // accurate only between 0 to 2
 {
     /*
      * the `x' iteration have the opposite sign.
@@ -94,19 +88,19 @@ void cordic_02(double* x0, double* y0, BITARRAY &bx0, BITARRAY &by0)  // accurat
      * iteration 0 is not performed.
      */
     double x, y;
-    double y_inv, y_temp, x_temp;
+
 
     BITARRAY bx, by;
     BITARRAY by_inv, bx_temp, by_temp;
     int i;
 
-    x = *x0; y = *y0;
+
     bx = bx0; by = by0;
 
     int k = 3;
 
-    for (i = 1; i < MAXBITS; ++i) {
-        double x1;
+    for (i = 1; i < BITS; ++i) {
+        //double x1;
         BITARRAY bx1;
 
         int j;
@@ -114,7 +108,7 @@ void cordic_02(double* x0, double* y0, BITARRAY &bx0, BITARRAY &by0)  // accurat
         for (j = 0; j < 2; ++j) {
             if(by[BITS-1]) {   // if by is < 0
             //if (y < 0) {
-
+/*              The comment part was the part for calculations with 'double', the calculations with bitsets follow
                 y_inv = -y;         // two's complement
                 y_inv = y_inv/pow(2, static_cast<double>(i));   // y_inv is > 0, -> can be divided by 2 by shifting
                 y_inv = -y_inv;   // two's complement
@@ -123,7 +117,8 @@ void cordic_02(double* x0, double* y0, BITARRAY &bx0, BITARRAY &by0)  // accurat
                 x_temp = x;
                 x_temp = x_temp / pow(2, static_cast<double>(i));
                 y = y + x_temp;     // x is NEVER smaller than 0
-
+*/
+                // Calculations with bitsets
                 by_inv = complement_2(by);         // two's complement
                 by_inv = shift_right(by_inv, i);   // y_inv is > 0, -> can be divided by 2 by shifting
                 by_inv = complement_2(by_inv);   // two's complement
@@ -136,6 +131,7 @@ void cordic_02(double* x0, double* y0, BITARRAY &bx0, BITARRAY &by0)  // accurat
 
             }
             else {
+                /*
                 y_temp = y;
                 y_temp = y_temp / pow(2, static_cast<double>(i));
                 y_temp = -y_temp;
@@ -145,10 +141,11 @@ void cordic_02(double* x0, double* y0, BITARRAY &bx0, BITARRAY &by0)  // accurat
                 x_temp = x_temp / pow(2, static_cast<double>(i));
                 x_temp = -x_temp;
                 y = y + x_temp;
+                */
                 //y = y - x/pow(2, static_cast<double>(i));   // x is NEVER smaller than 0
                // std::cout << "2. else " << x1 << " " << y << std::endl;
 
-
+                // Calculations with bitsets
                 by_temp = by;
                 by_temp = shift_right(by_temp, i);
                 by_temp = complement_2(by_temp);
@@ -160,7 +157,7 @@ void cordic_02(double* x0, double* y0, BITARRAY &bx0, BITARRAY &by0)  // accurat
                 by = addbits(by, bx_temp);
 
             }
-            x = x1;
+     //      x = x1;     // for operations with double
             bx = bx1;
 
             if (k) {
@@ -171,11 +168,9 @@ void cordic_02(double* x0, double* y0, BITARRAY &bx0, BITARRAY &by0)  // accurat
         }
     }
 
-    *x0 = x;
-    *y0 = y;
     bx0 = bx;
     by0 = by;
-    std::cout << "bx0: " << bit_to_double(bx0) << "   x0   " << *x0 << std::endl;
+    //std::cout << "bx0: " << bit_to_double(bx0) << "   x0   " << *x0 << std::endl;
 }
 
 
@@ -195,7 +190,7 @@ double sqrtCordic(double a)
 
     bx = addbits(ba, one);
     by = addbits(ba, one_inv);
-    cordic_02(&x, &y, bx, by);
+    cordic_bit(bx, by);
 
     bx = mult_0_6037(bx);
     std::cout << "Cordic Bit:    sqrt = "  << bit_to_double(bx) << std::endl;
@@ -208,7 +203,7 @@ int main(void)
     double x;
 
 
-    x = 2.;
+    x = 10.;
     v = sqrtCordic(x);
     printf("Real:          sqrt(%f) =  %.18e\n", x, sqrt(x));
 /*

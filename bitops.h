@@ -1,14 +1,15 @@
 #ifndef BITOPS
 #define BITOPS
 
-#define BITS 9
-#define FPOINT 4   // 4 indices after decimal point
+/**
+  In this file, the operations on bits are specified, for example the addition, shifts, ...
+
+
+**/
+#define BITS 9     // width of one number,     you can change it to any number, for example 20
+#define FPOINT 4   // 4 indices after decimal point, you can change it to any number
 typedef std::bitset<BITS> BITARRAY;
 
-/* working with IEEE doubles, means there are 53 bits
- * of mantissa
- */
-#define MAXBITS        8
 
 
 BITARRAY addbits(BITARRAY &a, BITARRAY &b)
@@ -57,7 +58,7 @@ BITARRAY double_to_bit(double a)
       result[i] = true;
     }
   }
-  std::cout << "double to bit " << temp << "  " << result << std::endl;
+  //std::cout << "double to bit " << temp << "  " << result << std::endl;
 
   return result;
 }
@@ -66,7 +67,7 @@ double bit_to_double(BITARRAY a)
 {
   double result = 0.;
   if (a[a.size()-1] == 1) result = -pow(2, BITS - FPOINT - 1);
-  for(int i = 0; i < a.size() - 1; ++i)
+  for(int i = 0; i < static_cast<int>(a.size() - 1); ++i)
   {
     result += a[i] * pow(2, i - (FPOINT));
   }
@@ -88,13 +89,7 @@ BITARRAY shift_right(BITARRAY input, int shifts)
   {
     input[i] = input[i + shifts];
   }
-//    input[7] = input[6];
-//  input[6] = input[5];
-//  input[5] = input[4];
-//  input[4] = input[3];
-//  input[3] = input[2];
-//  input[2] = input[1];
-//  input[1] = input[0];
+
   for(int i = BITS - shifts; i < BITS; ++i)
     input[i] = 0;
 
