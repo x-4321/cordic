@@ -33,8 +33,8 @@ begin
    if (reset='1') then 
      o <= (others => '0');	
 	else
-	   x_array(x_array'low) := signed('0' & a) + to_signed(1, 9);     -- x_array(0)= a+1;
-	   y_array(y_array'low) := signed('0' & a) - to_signed(1, 9);     -- y_array(0)= a-1;
+	   x_array(x_array'low) := signed('0' & a) + to_signed(32, 9);     -- x_array(0)= a+1;
+	   y_array(y_array'low) := signed('0' & a) - to_signed(32, 9);     -- y_array(0)= a-1;
 		
 	   k := 1;
 	   L1: for i in 1 to x_array'high - 5 loop

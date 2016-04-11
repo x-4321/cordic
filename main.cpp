@@ -63,7 +63,7 @@ void cordit2(double* x0, double* y0)
 
             k++;
         }
-        if(i == 4 || i == 7 || i == 10 || i == 13 || i == 16)
+        if(i == 4 || i == 7 || i == 10 || i == 13 || i == 16 || i == 19)
           {
               if (y[k-1] < 0 ) {
                   x[k] = x[k-1] + y[k-1] / pow(2, i);
@@ -99,54 +99,23 @@ void cordic_bit(BITARRAY &bx0, BITARRAY &by0)  // accurate only between 0 to 2
 
     bx = bx0; by = by0;
 
-    int k = 3;
-
     for (i = 1; i < BITS; ++i) {
         //double x1;
         BITARRAY bx1;
 
-        int j;
 
-        for (j = 0; j < 2; ++j) {
             if(by[BITS-1]) {   // if by is < 0
-            //if (y < 0) {
-/*              The comment part was the part for calculations with 'double', the calculations with bitsets follow
-                y_inv = -y;         // two's complement
-                y_inv = y_inv/pow(2, static_cast<double>(i));   // y_inv is > 0, -> can be divided by 2 by shifting
-                y_inv = -y_inv;   // two's complement
-
-                x1 = x + y_inv;
-                x_temp = x;
-                x_temp = x_temp / pow(2, static_cast<double>(i));
-                y = y + x_temp;     // x is NEVER smaller than 0
-*/
                 // Calculations with bitsets
                 by_inv = complement_2(by);         // two's complement
                 by_inv = shift_right(by_inv, i);   // y_inv is > 0, -> can be divided by 2 by shifting
                 by_inv = complement_2(by_inv);   // two's complement
 
-
                 bx1 = addbits(bx, by_inv);
                 bx_temp = bx;
                 bx_temp = shift_right(bx_temp, i);
                 by = addbits(by, bx_temp);     //y = y + x/pow(2, static_cast<double>(i));     // x is NEVER smaller than 0
-
             }
             else {
-                /*
-                y_temp = y;
-                y_temp = y_temp / pow(2, static_cast<double>(i));
-                y_temp = -y_temp;
-                x1 = x + y_temp;
-
-                x_temp = x;
-                x_temp = x_temp / pow(2, static_cast<double>(i));
-                x_temp = -x_temp;
-                y = y + x_temp;
-                */
-                //y = y - x/pow(2, static_cast<double>(i));   // x is NEVER smaller than 0
-               // std::cout << "2. else " << x1 << " " << y << std::endl;
-
                 // Calculations with bitsets
                 by_temp = by;
                 by_temp = shift_right(by_temp, i);
@@ -157,17 +126,38 @@ void cordic_bit(BITARRAY &bx0, BITARRAY &by0)  // accurate only between 0 to 2
                 bx_temp = shift_right(bx_temp, i);
                 bx_temp = complement_2(bx_temp);
                 by = addbits(by, bx_temp);
-
             }
-     //      x = x1;     // for operations with double
             bx = bx1;
 
-            if (k) {
-                --k;
-                break;
-            }
-            else k = 3;
-        }
+            if(i == 4 || i == 7 || i == 10 || i == 13 || i == 16 || i == 19)
+              {
+                if(by[BITS-1]) {   // if by is < 0
+                    // Calculations with bitsets
+                    by_inv = complement_2(by);         // two's complement
+                    by_inv = shift_right(by_inv, i);   // y_inv is > 0, -> can be divided by 2 by shifting
+                    by_inv = complement_2(by_inv);   // two's complement
+
+
+                    bx1 = addbits(bx, by_inv);
+                    bx_temp = bx;
+                    bx_temp = shift_right(bx_temp, i);
+                    by = addbits(by, bx_temp);     //y = y + x/pow(2, static_cast<double>(i));     // x is NEVER smaller than 0
+
+                }
+                else {
+                    // Calculations with bitsets
+                    by_temp = by;
+                    by_temp = shift_right(by_temp, i);
+                    by_temp = complement_2(by_temp);
+                    bx1 = addbits(bx, by_temp);         //x1 = x - y/pow(2, static_cast<double>(i));
+
+                    bx_temp = bx;
+                    bx_temp = shift_right(bx_temp, i);
+                    bx_temp = complement_2(bx_temp);
+                    by = addbits(by, bx_temp);
+                }
+                bx = bx1;
+              }
     }
 
     bx0 = bx;
@@ -195,7 +185,7 @@ double sqrtCordic(double a)
     cordic_bit(bx, by);
 
     bx = mult_0_6037(bx);
-    std::cout << "Cordic Bit:    sqrt = "  << bit_to_double(bx) << std::endl;
+    std::cout << "Cordic Bit:    sqrt = "  << bit_to_double(bx) << "  bx = " <<  bx << std::endl;
     cordit2(&x, &y);
     return x * invGain2;
 }
@@ -206,7 +196,7 @@ int main(void)
     double x;
 
 
-    x = 15;
+    x = 2;
     v = sqrtCordic(x);
     printf("V = %f\n", v);
     printf("Real:          sqrt(%f) =  %.18e\n", x, sqrt(x));

@@ -89,7 +89,7 @@ BEGIN
 		wait for 100 ns;
       reset <= '0';
       wait for 50 ns;		
-		a <= std_logic_vector(to_signed(9, 8));		
+		a <= std_logic_vector(to_signed(64, 8));		
 		wait for 100 ns;
       wait for clk_period*10;
       wait;
