@@ -13,6 +13,9 @@
 /* these are the constants needed */
 //const double invGain2 = 1/0.8281336921;  // cordic_02   + 0.25   -0.25
 const double invGain2 =1/ 1.656266;        // cordic_02   + 1      -1   ... = 0.6037 = 0.1001101..
+//const double invGain2 =1./3.704;        // + - 5
+//const double invGain2 =1./50.59;     // + - 7
+
 #define MULT(_a, _b)    (_a)*(_b)
 
 
@@ -37,47 +40,51 @@ BITARRAY mult_0_6037(BITARRAY a)  // multiply BITARRAY with 0.6037 = 0.100110101
 }
 
 
-/* This is the original algorithm. Below (cordic_bit), the same operations are performed, only with bitsets
-void cordit2(double* x0, double* y0, double* z0)
+// This is the original algorithm. Below (cordic_bit), the same operations are performed, only with bitsets
+void cordit2(double* x0, double* y0)
 {
     double t;
-    double x, y, z;
+    double x[50], y[50];
     int i;
 
-    t = 0.5;
-    x = *x0; y = *y0; z = *z0;
 
-    int k = 3;
-    for (i = 0; i < MAXBITS; ++i) {
-        double x1;
-        int j;
+    x[0] = *x0; y[0] = *y0;
 
-        for (j = 0; j < 2; ++j) {
-            if (y < 0 ) {
-                x1 = x + y*pow(2, -i);
-                y = y + x* pow(2, -i);
+    int k = 1;
+    for (i = 1; i < 30; ++i) {
 
+        {
+            if (y[k-1] < 0 ) {
+                x[k] = x[k-1] + y[k-1] / pow(2, i);
+                y[k] = y[k-1] + x[k-1] / pow(2, i);
             }
             else {
-                x1 = x - y*pow(2, -i);
-                y = y - x* pow(2, -i);
+                x[k] = x[k-1] - y[k-1] / pow(2, i);
+                y[k] = y[k-1] - x[k-1] / pow(2, i);
 
             }
-            x = x1;
 
-            if (k) {
-                --k;
-                break;
-            }
-            else k = 3;
+            k++;
         }
-    }
+        if(i == 4 || i == 7 || i == 10 || i == 13 || i == 16)
+          {
+              if (y < 0 ) {
+                  x[k] = x[k-1] + y[k-1] / pow(2, i);
+                  y[k] = y[k-1] + x[k-1] / pow(2, i);
+              }
+              else {
+                  x[k] = x[k-1] - y[k-1] / pow(2, i);
+                  y[k] = y[k-1] - x[k-1] / pow(2, i);
 
-    *x0 = x;
-    *y0 = y;
+              }
+
+              k++;
+          }
+    }
+    *x0 = x[k-1];
+    *y0 = y[k-1];
 }
 
-*/
 
 // This is the same algorithm as above, but with bits instead of double
 void cordic_bit(BITARRAY &bx0, BITARRAY &by0)  // accurate only between 0 to 2
@@ -194,6 +201,7 @@ double sqrtCordic(double a)
 
     bx = mult_0_6037(bx);
     std::cout << "Cordic Bit:    sqrt = "  << bit_to_double(bx) << std::endl;
+    cordit2(&x, &y);
     return MULT(x, invGain2);
 }
 
@@ -203,8 +211,9 @@ int main(void)
     double x;
 
 
-    x = 10.;
+    x = 15;
     v = sqrtCordic(x);
+    printf("V = %f\n", v);
     printf("Real:          sqrt(%f) =  %.18e\n", x, sqrt(x));
 /*
 
