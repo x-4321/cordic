@@ -44,7 +44,6 @@ BITARRAY complement_2(BITARRAY a)
 BITARRAY double_to_bit(double a)
 {
   BITARRAY result;
-  double temp = a;
   if(a < 0)
   {
     a += pow(2, BITS - FPOINT - 1);

@@ -16,8 +16,6 @@ const double invGain2 =1/ 1.656266;        // cordic_02   + 1      -1   ... = 0.
 //const double invGain2 =1./3.704;        // + - 5
 //const double invGain2 =1./50.59;     // + - 7
 
-#define MULT(_a, _b)    (_a)*(_b)
-
 
 BITARRAY mult_0_6037(BITARRAY a)  // multiply BITARRAY with 0.6037 = 0.100110101..
 {
@@ -43,7 +41,6 @@ BITARRAY mult_0_6037(BITARRAY a)  // multiply BITARRAY with 0.6037 = 0.100110101
 // This is the original algorithm. Below (cordic_bit), the same operations are performed, only with bitsets
 void cordit2(double* x0, double* y0)
 {
-    double t;
     double x[50], y[50];
     int i;
 
@@ -68,7 +65,7 @@ void cordit2(double* x0, double* y0)
         }
         if(i == 4 || i == 7 || i == 10 || i == 13 || i == 16)
           {
-              if (y < 0 ) {
+              if (y[k-1] < 0 ) {
                   x[k] = x[k-1] + y[k-1] / pow(2, i);
                   y[k] = y[k-1] + x[k-1] / pow(2, i);
               }
@@ -94,8 +91,6 @@ void cordic_bit(BITARRAY &bx0, BITARRAY &by0)  // accurate only between 0 to 2
      * iterations 4, 7, .. 3k+1 are repeated.
      * iteration 0 is not performed.
      */
-    double x, y;
-
 
     BITARRAY bx, by;
     BITARRAY by_inv, bx_temp, by_temp;
@@ -202,7 +197,7 @@ double sqrtCordic(double a)
     bx = mult_0_6037(bx);
     std::cout << "Cordic Bit:    sqrt = "  << bit_to_double(bx) << std::endl;
     cordit2(&x, &y);
-    return MULT(x, invGain2);
+    return x * invGain2;
 }
 
 int main(void)

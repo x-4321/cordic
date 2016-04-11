@@ -18,6 +18,7 @@ architecture Behavioral of quadratwurzel is
 
 type signed_array is array (natural RANGE <> ) OF signed(8 downto 0);
 
+--signal ab : ufixed (3 downto -3); 
 
 begin
 cordic : process (reset, a)
