@@ -6,8 +6,8 @@
 
 
 **/
-#define BITS 8     // width of one number,     you can change it to any number, for example 20
-#define FPOINT  5    // 4 indices after decimal point, you can change it to any number
+#define BITS 9     // width of one number,     you can change it to any number, for example 20
+#define FPOINT  7    // 4 indices after decimal point, you can change it to any number
 typedef std::bitset<BITS> BITARRAY;
 
 
