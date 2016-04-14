@@ -17,13 +17,13 @@ end quadratwurzel;
 architecture Behavioral of quadratwurzel is
 
 type signed_array      is array (natural RANGE <> ) OF signed(9 downto 0);
-type signed_array_long is array (natural RANGE <> ) OF signed(14 downto 0);
+type signed_array_long is array (natural RANGE <> ) OF signed(15 downto 0);
 
 begin
 cordic : process (reset, a)
 
 variable x1, x2, x3, x4, x5, x_result : signed (9 downto 0);
-variable b : signed_array_long(0 to 6) := (others => (others => '0'));
+variable b : signed_array_long(0 to 8) := (others => (others => '0'));
 variable k : integer := 1;
 variable m : integer := 0;
 
@@ -36,11 +36,14 @@ begin
 	elsif (a = "00000000") then
 	  o <= (others => '0');	
 	else
-	   b(0) := signed( a & "000000");
+	   b(0) := signed('0' & a & "0000000");
 		m := 0;
-		while ( b(m) >= to_signed(256, 15)) loop
+		while ( b(m) >= to_signed(256, 16)) loop
         b(m + 1) := b(m)/(2**2);
         m := m + 1;
+		  if(m > 7) then
+		    m := 0;
+			 end if;
       end loop; 
 		
 	   x_array(x_array'low) := signed('0' & b(m)(7 downto 0)) + to_signed(32, 10);     -- x_array(0)= a+0.25;
@@ -82,9 +85,9 @@ begin
       
 		
       x_result := x1 + x2 + x3 + x4 + x5 ;
-		b(m) := "0000000" & x_result(7 downto 0);
+		b(m) := "00000000" & x_result(7 downto 0);
 		b(m):= shift_left(b(m), m);
-		o <= std_logic_vector(b(m)(10 downto 2));         -- use only bits with value from 8 to 1/16
+		o <= std_logic_vector(b(m)(10 downto 3));         -- use only bits with value from 8 to 1/16
 		--o <= std_logic_vector(x_result(7 downto 0));
 	 end if;	
 end process cordic ;

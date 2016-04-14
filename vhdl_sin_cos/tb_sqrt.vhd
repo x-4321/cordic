@@ -89,7 +89,7 @@ BEGIN
 		wait for 100 ns;
       reset <= '0';
 		wait for 50 ns;
-		a <= std_logic_vector(to_signed(115, 8));		
+		a <= std_logic_vector(to_signed(128, 8));		
 		wait for 50 ns;
 		a <= std_logic_vector(to_signed(120, 8));		
 		wait for 50 ns;
